@@ -1,0 +1,4018 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏配置管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        .sidebar-header p {
+            margin: 5px 0 0 0;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 0 25px 25px 0;
+            margin-right: 20px;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-nav i {
+            margin-right: 15px;
+            width: 20px;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-nav span {
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex: 1;
+            background: #f8f9fa;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            background: white;
+            padding: 25px 40px;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .content-header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .content-body {
+            padding: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h3 {
+            margin: 0 0 25px 0;
+            color: #2c3e50;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .hierarchy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .hierarchy-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .hierarchy-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .hierarchy-card h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .hierarchy-card p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .hierarchy-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* 游戏分组卡片样式 */
+        .game-group-card {
+            border-left: 4px solid #667eea;
+            margin-bottom: 20px;
+        }
+
+        .game-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .game-group-header h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .project-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .template-count {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .templates-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .template-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s ease;
+        }
+
+        .template-item:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .template-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .template-name {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .template-path {
+            color: #666;
+            font-size: 0.85rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-xs {
+            padding: 6px 8px;
+            font-size: 0.8rem;
+            min-width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 配置预览样式 */
+        .config-preview {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .preview-header h4 {
+            margin: 0;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-preview pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-form {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .breadcrumb {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb .separator {
+            margin: 0 10px;
+            color: #999;
+        }
+
+        .config-generator-container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+
+        .config-template-panel,
+        .config-values-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .panel-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .config-items {
+            margin-bottom: 20px;
+        }
+
+        .config-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+        }
+
+        .config-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .config-item input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .config-item input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .config-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .config-actions .btn {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .config-generator-container {
+                flex-direction: column;
+                height: auto;
+            }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .form-loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* 系统设置样式 */
+        .settings-container {
+            max-width: 100%;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .settings-container h2 {
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+            font-size: 1.3rem;
+        }
+
+        .settings-section {
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-section h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .settings-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .settings-form.single-column {
+            grid-template-columns: 1fr;
+        }
+
+        .settings-form .form-group {
+            margin-bottom: 0;
+        }
+
+        .settings-form .form-group label {
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .settings-form .form-group input {
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+
+        .settings-form .btn {
+            grid-column: 1 / -1;
+            margin-top: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .settings-form small {
+            color: #666;
+            font-size: 10px;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .system-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .info-value {
+            color: #333;
+        }
+
+        .backup-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .backup-actions .btn {
+            flex: 1;
+            min-width: 100px;
+            font-size: 12px;
+            padding: 6px 10px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .settings-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .system-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .backup-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录界面 -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-form">
+            <h2><i class="fas fa-gamepad"></i> 游戏配置管理系统</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-sign-in-alt"></i> 登录
+                </button>
+            </form>
+            <div id="loginAlert" class="alert" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- 主界面 -->
+    <div id="mainContent" class="app-container" style="display: none;">
+        <!-- 侧边导航栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-gamepad"></i> 游戏配置管理系统</h2>
+                <p>项目管理 → 游戏管理 → 区服管理</p>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="#" class="nav-link active" data-tab="projects">
+                    <i class="fas fa-folder"></i>
+                    <span>项目管理</span>
+                </a></li>
+                <li><a href="#" class="nav-link" data-tab="games">
+                    <i class="fas fa-gamepad"></i>
+                    <span>游戏管理</span>
+                </a></li>
+                <li><a href="#" class="nav-link" data-tab="servers">
+                    <i class="fas fa-server"></i>
+                    <span>区服管理</span>
+                </a></li>
+                <li><a href="#" class="nav-link" data-tab="templates">
+                    <i class="fas fa-file-code"></i>
+                    <span>模板管理</span>
+                </a></li>
+                <li><a href="#" class="nav-link" data-tab="generator">
+                    <i class="fas fa-magic"></i>
+                    <span>配置生成</span>
+                </a></li>
+                <li><a href="#" class="nav-link" data-tab="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>系统设置</span>
+                </a></li>
+            </ul>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <div class="content-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h1 id="pageTitle">项目管理</h1>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="user-avatar" id="userAvatar">A</div>
+                            <div>
+                                <div id="userName" style="font-weight: 600;">管理员</div>
+                                <div id="userRole" style="font-size: 0.9rem; color: #666;">系统管理员</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> 登出
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <!-- 项目管理标签页 -->
+                <div id="projectsTab" class="tab-content active">
+                    <div class="card">
+                        <h3><i class="fas fa-plus"></i> 创建新项目</h3>
+                        <form id="projectForm">
+                            <div class="form-group">
+                                <label for="projectName">项目名称</label>
+                                <input type="text" id="projectName" name="name" placeholder="例如: 腾讯游戏项目" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="projectDescription">项目描述</label>
+                                <textarea id="projectDescription" name="description" placeholder="描述项目的用途和特点..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus"></i> 创建项目
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-list"></i> 项目列表</h3>
+                        <div id="projectGrid" class="hierarchy-grid">
+                            <!-- 项目卡片将在这里动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 游戏管理标签页 -->
+                <div id="gamesTab" class="tab-content">
+                    <div class="breadcrumb" id="gameBreadcrumb">
+                        <a href="#" onclick="showTab('projects')">项目管理</a>
+                        <span class="separator">></span>
+                        <span>游戏管理</span>
+                    </div>
+                    
+                    <div class="card">
+                        <h3><i class="fas fa-plus"></i> 创建新游戏</h3>
+                        <form id="gameForm">
+                            <div class="form-group">
+                                <label for="selectProject">选择项目</label>
+                                <select id="selectProject" name="project_id" required>
+                                    <option value="">请选择项目...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="gameName">游戏名称</label>
+                                <input type="text" id="gameName" name="name" placeholder="例如: 王者荣耀" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="gameDescription">游戏描述</label>
+                                <textarea id="gameDescription" name="description" placeholder="描述游戏的特点..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus"></i> 创建游戏
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-list"></i> 游戏列表</h3>
+                        <div id="gameGrid" class="hierarchy-grid">
+                            <!-- 游戏卡片将在这里动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 区服管理标签页 -->
+                <div id="serversTab" class="tab-content">
+                    <div class="breadcrumb" id="serverBreadcrumb">
+                        <a href="#" onclick="showTab('projects')">项目管理</a>
+                        <span class="separator">></span>
+                        <a href="#" onclick="showTab('games')">游戏管理</a>
+                        <span class="separator">></span>
+                        <span>区服管理</span>
+                    </div>
+                    
+                    <div class="card">
+                        <h3><i class="fas fa-plus"></i> 创建新区服</h3>
+                        <form id="serverForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="selectGame">选择游戏</label>
+                                    <select id="selectGame" name="game_id" required>
+                                        <option value="">请选择游戏...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="serverName">区服名称</label>
+                                    <input type="text" id="serverName" name="name" placeholder="例如: 1区-测试服" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="serverId">区服ID</label>
+                                <input type="text" id="serverId" name="server_id" placeholder="例如: server_001" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="serverDescription">区服描述</label>
+                                <textarea id="serverDescription" name="description" placeholder="描述区服的用途和特点..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus"></i> 创建区服
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-list"></i> 区服列表</h3>
+                        <div id="serverGrid" class="hierarchy-grid">
+                            <!-- 区服卡片将在这里动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板管理标签页 -->
+                <div id="templatesTab" class="tab-content">
+                    <div class="breadcrumb" id="templateBreadcrumb">
+                        <a href="#" onclick="showTab('projects')">项目管理</a>
+                        <span class="separator">></span>
+                        <a href="#" onclick="showTab('games')">游戏管理</a>
+                        <span class="separator">></span>
+                        <span>模板管理</span>
+                    </div>
+                    
+                    <div class="card">
+                        <h3><i class="fas fa-plus"></i> 创建配置文件模板</h3>
+                        <form id="templateForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="templateProject">选择项目</label>
+                                    <select id="templateProject" name="project_id" required>
+                                        <option value="">请选择项目...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="templateGame">选择游戏</label>
+                                    <select id="templateGame" name="game_id" required>
+                                        <option value="">请选择游戏...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="templateName">模板名称</label>
+                                <input type="text" id="templateName" name="name" placeholder="例如: 游戏配置文件" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="templatePath">文件路径</label>
+                                <input type="text" id="templatePath" name="file_path" placeholder="例如: config/game.conf" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="templateContent">模板内容</label>
+                                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadTemplateExample('env')">环境变量示例</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadTemplateExample('json')">JSON配置示例</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="loadTemplateExample('xml')">XML配置示例</button>
+                                </div>
+                                <textarea id="templateContent" name="template_content" rows="10" placeholder="输入配置文件模板内容，使用 {{变量名}} 格式定义可配置项..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus"></i> 创建模板
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-list"></i> 配置文件模板列表</h3>
+                        <div id="templateGrid" class="hierarchy-grid">
+                            <!-- 模板卡片将在这里动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 配置生成标签页 -->
+                <div id="generatorTab" class="tab-content">
+                    <div class="breadcrumb" id="generatorBreadcrumb">
+                        <a href="#" onclick="showTab('projects')">项目管理</a>
+                        <span class="separator">></span>
+                        <a href="#" onclick="showTab('games')">游戏管理</a>
+                        <span class="separator">></span>
+                        <a href="#" onclick="showTab('servers')">区服管理</a>
+                        <span class="separator">></span>
+                        <span>配置生成</span>
+                    </div>
+                    
+                    <div class="config-generator-container">
+                        <!-- 左侧：选择区服和模板 -->
+                        <div class="config-template-panel">
+                            <div class="panel-header">
+                                <h3><i class="fas fa-cog"></i> 选择配置</h3>
+                            </div>
+                            <div class="panel-content">
+                                <div class="form-group">
+                                    <label for="genProject">选择项目</label>
+                                    <select id="genProject" onchange="loadGamesForProject()">
+                                        <option value="">请选择项目...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="genGame">选择游戏</label>
+                                    <select id="genGame" onchange="loadServersForGame(); loadTemplatesForGame();">
+                                        <option value="">请选择游戏...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="genServer">选择区服</label>
+                                    <select id="genServer" onchange="setSelectedServer()">
+                                        <option value="">请选择区服...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="genTemplate">选择模板</label>
+                                    <select id="genTemplate" onchange="setSelectedTemplate()">
+                                        <option value="">请选择模板...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右侧：配置值填写 -->
+                        <div class="config-values-panel">
+                            <div class="panel-header">
+                                <h3><i class="fas fa-edit"></i> 配置值填写</h3>
+                            </div>
+                            <div class="panel-content">
+                                <div id="configForm" style="display: none;">
+                                    <div id="configItems" class="config-items">
+                                        <!-- 配置项将在这里动态生成 -->
+                                    </div>
+                                    <div class="config-actions">
+                                        <button class="btn btn-success" onclick="generateConfig();">
+                                            <i class="fas fa-download"></i> 生成配置文件
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="previewConfig()">
+                                            <i class="fas fa-eye"></i> 预览配置
+                                        </button>
+                                        <button class="btn btn-info" onclick="openGeneratedFolder()" style="margin-left: 10px;">
+                                            <i class="fas fa-folder-open"></i> 打开生成目录
+                                        </button>
+                                        <button class="btn btn-warning" onclick="downloadGeneratedZip()" style="margin-left: 10px;">
+                                            <i class="fas fa-file-archive"></i> 下载ZIP包
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="configPreview" class="config-preview" style="display: none;">
+                                    <div class="preview-header">
+                                        <h4><i class="fas fa-eye"></i> 配置预览</h4>
+                                        <button class="btn btn-secondary btn-sm" onclick="backToConfigForm()">
+                                            <i class="fas fa-arrow-left"></i> 返回编辑
+                                        </button>
+                                    </div>
+                                    <pre id="previewContent"></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系统设置标签页 -->
+                <div id="settingsTab" class="tab-content">
+                    <div class="settings-container">
+                        <h2><i class="fas fa-cog"></i> 系统设置</h2>
+                        
+                        <!-- 个人信息和密码设置 -->
+                        <div class="settings-section">
+                            <h3><i class="fas fa-user"></i> 账户设置</h3>
+                            <form id="profileForm" class="settings-form">
+                                <div class="form-group">
+                                    <label for="settingsNickname">昵称</label>
+                                    <input type="text" id="settingsNickname" placeholder="请输入昵称" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="settingsEmail">邮箱</label>
+                                    <input type="email" id="settingsEmail" placeholder="请输入邮箱">
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> 保存个人信息
+                                </button>
+                            </form>
+                            
+                            <form id="passwordForm" class="settings-form" style="margin-top: 15px;">
+                                <div class="form-group">
+                                    <label for="currentPassword">当前密码</label>
+                                    <input type="password" id="currentPassword" placeholder="请输入当前密码" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">新密码</label>
+                                    <input type="password" id="newPassword" placeholder="请输入新密码" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">确认新密码</label>
+                                    <input type="password" id="confirmPassword" placeholder="请再次输入新密码" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-key"></i> 修改密码
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- 系统设置 -->
+                        <div class="settings-section">
+                            <h3><i class="fas fa-cog"></i> 系统设置</h3>
+                            <form id="systemNameForm" class="settings-form">
+                                <div class="form-group">
+                                    <label for="systemName">系统名称</label>
+                                    <input type="text" id="systemName" placeholder="游戏配置文件管理系统" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="systemSubtitle">系统副标题</label>
+                                    <input type="text" id="systemSubtitle" placeholder="高效管理配置文件">
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> 保存系统设置
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- 系统信息和数据管理 -->
+                        <div class="settings-section">
+                            <h3><i class="fas fa-info-circle"></i> 系统信息</h3>
+                            <div class="system-info">
+                                <div class="info-item">
+                                    <span class="info-label">系统版本：</span>
+                                    <span class="info-value">v1.0.0</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">数据库状态：</span>
+                                    <span class="info-value" style="color: #4caf50;">正常</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">模板数量：</span>
+                                    <span class="info-value" id="templateCount">0</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">项目数量：</span>
+                                    <span class="info-value" id="projectCount">0</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <h4 style="margin-bottom: 8px; color: #666; font-size: 13px;">数据管理</h4>
+                                <div class="backup-actions">
+                                    <button class="btn btn-success" onclick="backupData()">
+                                        <i class="fas fa-download"></i> 导出备份
+                                    </button>
+                                    <button class="btn btn-primary" onclick="document.getElementById('importFile').click()">
+                                        <i class="fas fa-upload"></i> 导入数据
+                                    </button>
+                                    <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(event)">
+                                    <button class="btn btn-danger" onclick="confirmClearData()">
+                                        <i class="fas fa-trash"></i> 清空数据
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="alertContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentUser = null;
+        let projects = [];
+        let games = [];
+        let servers = [];
+        let templates = [];
+        let selectedProject = null;
+        let selectedGame = null;
+        let selectedServer = null;
+        let selectedTemplate = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initEventListeners();
+            checkLoginStatus();
+            restoreTemplateFormValues();
+            restoreSystemSettings();
+        });
+        
+        // 恢复模板表单的值
+        function restoreTemplateFormValues() {
+            // 恢复模板名称
+            const templateName = localStorage.getItem('lastTemplateName');
+            if (templateName) {
+                const nameInput = document.getElementById('templateName');
+                if (nameInput) {
+                    nameInput.value = templateName;
+                }
+            }
+            
+            // 恢复文件路径
+            const templateFilePath = localStorage.getItem('lastTemplateFilePath');
+            if (templateFilePath) {
+                const filePathInput = document.getElementById('templateFilePath');
+                if (filePathInput) {
+                    filePathInput.value = templateFilePath;
+                }
+            }
+            
+            // 恢复模板内容
+            const templateContent = localStorage.getItem('lastTemplateContent');
+            if (templateContent) {
+                const contentTextarea = document.getElementById('templateContent');
+                if (contentTextarea) {
+                    contentTextarea.value = templateContent;
+                }
+            }
+        }
+        
+        // 恢复系统设置
+        function restoreSystemSettings() {
+            // 恢复系统名称
+            const systemName = localStorage.getItem('systemName');
+            if (systemName) {
+                const sidebarHeader = document.querySelector('.sidebar-header h2');
+                const pageTitle = document.querySelector('.content-header h1');
+                if (sidebarHeader) {
+                    sidebarHeader.textContent = systemName;
+                }
+                if (pageTitle) {
+                    pageTitle.textContent = systemName;
+                }
+                document.title = systemName;
+            }
+            
+            // 恢复系统副标题
+            const systemSubtitle = localStorage.getItem('systemSubtitle');
+            if (systemSubtitle) {
+                const sidebarSubtitle = document.querySelector('.sidebar-header p');
+                if (sidebarSubtitle) {
+                    sidebarSubtitle.textContent = systemSubtitle;
+                }
+            }
+            
+            // 恢复导航名称
+            const navNames = {
+                'navProjects': localStorage.getItem('navProjects') || '项目管理',
+                'navTemplates': localStorage.getItem('navTemplates') || '模板管理',
+                'navGenerator': localStorage.getItem('navGenerator') || '配置生成',
+                'navSettings': localStorage.getItem('navSettings') || '系统设置'
+            };
+            
+            Object.entries(navNames).forEach(([key, value]) => {
+                const element = document.querySelector(`[data-nav="${key}"]`);
+                if (element) {
+                    element.textContent = value;
+                }
+            });
+        }
+        
+        // 事件监听器
+        function initEventListeners() {
+            // 登录表单
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
+            
+            // 项目表单
+            const projectForm = document.getElementById('projectForm');
+            if (projectForm) {
+                projectForm.addEventListener('submit', handleProjectSubmit);
+            }
+            
+            // 游戏表单
+            const gameForm = document.getElementById('gameForm');
+            if (gameForm) {
+                gameForm.addEventListener('submit', handleGameSubmit);
+            }
+            
+            // 区服表单
+            const serverForm = document.getElementById('serverForm');
+            if (serverForm) {
+                serverForm.addEventListener('submit', handleServerSubmit);
+            }
+            
+            // 模板表单
+            const templateForm = document.getElementById('templateForm');
+            if (templateForm) {
+                templateForm.addEventListener('submit', handleTemplateSubmit);
+            }
+            
+            // 导航链接
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabName = this.dataset.tab;
+                    showTab(tabName);
+                });
+            });
+        }
+
+        // 检查登录状态
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (isLoggedIn) {
+                showMainContent();
+            } else {
+                showLoginForm();
+            }
+        }
+
+        // 显示登录表单
+        function showLoginForm() {
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'none';
+        }
+
+        // 显示主内容
+        function showMainContent() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'flex';
+            loadProjects();
+        }
+
+        // 处理登录
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            showLoading('正在登录...');
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    currentUser = result.user;
+                    showMainContent();
+                    showAlert('登录成功！', 'success');
+                } else {
+                    showAlert(result.error || '登录失败', 'error');
+                }
+            } catch (error) {
+                console.error('登录失败:', error);
+                showAlert('登录失败，请重试', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 登出
+        async function logout() {
+            try {
+                await fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } catch (error) {
+                console.error('登出请求失败:', error);
+            }
+            
+            localStorage.removeItem('isLoggedIn');
+            currentUser = null;
+            showLoginForm();
+            document.getElementById('loginForm').reset();
+        }
+
+        // 标签页切换
+        function showTab(tabName) {
+            // 移除所有活动状态
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // 添加活动状态
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // 更新页面标题
+            const titles = {
+                'projects': '项目管理',
+                'games': '游戏管理',
+                'servers': '区服管理',
+                'templates': '模板管理',
+                'generator': '配置生成',
+                'settings': '系统设置'
+            };
+            document.getElementById('pageTitle').textContent = titles[tabName];
+            
+            // 加载对应数据
+            switch(tabName) {
+                case 'projects':
+                    loadProjects();
+                    break;
+                case 'games':
+                    loadProjectsForSelect();
+                    loadGames();
+                    break;
+                case 'servers':
+                    loadGamesForSelect();
+                    loadServers();
+                    break;
+                case 'templates':
+                    loadProjectsForTemplateSelect();
+                    loadTemplates();
+                    break;
+                case 'generator':
+                    loadProjectsForGeneratorSelect();
+                    break;
+                case 'settings':
+                    loadSettingsData();
+                    break;
+            }
+        }
+
+        // 加载项目列表
+        async function loadProjects() {
+            try {
+                const response = await fetch('/api/projects');
+                const result = await response.json();
+                
+                if (response.ok) {
+                    projects = result;
+                    renderProjects();
+                }
+            } catch (error) {
+                console.error('加载项目失败:', error);
+                // 使用模拟数据
+                projects = [
+                    { id: 1, name: '腾讯游戏项目', description: '腾讯旗下游戏项目' },
+                    { id: 2, name: '网易游戏项目', description: '网易旗下游戏项目' }
+                ];
+                renderProjects();
+            }
+        }
+
+        // 渲染项目列表
+        function renderProjects() {
+            const projectGrid = document.getElementById('projectGrid');
+            projectGrid.innerHTML = '';
+            
+            projects.forEach(project => {
+                const projectCard = document.createElement('div');
+                projectCard.className = 'hierarchy-card';
+                projectCard.innerHTML = `
+                    <h4>${project.name}</h4>
+                    <p>${project.description || '暂无描述'}</p>
+                    <div class="hierarchy-actions">
+                        <button class="btn btn-primary btn-sm" onclick="viewProjectGames(${project.id})">
+                            <i class="fas fa-gamepad"></i> 查看游戏
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="editProject(${project.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteProject(${project.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                `;
+                projectGrid.appendChild(projectCard);
+            });
+        }
+
+        // 处理项目表单提交
+        async function handleProjectSubmit(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const projectData = {
+                name: formData.get('name'),
+                description: formData.get('description')
+            };
+            
+            showLoading('正在创建项目...');
+            
+            try {
+                const response = await fetch('/api/projects', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(projectData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('项目创建成功！', 'success');
+                    e.target.reset();
+                    loadProjects(); // 重新加载项目列表
+                } else {
+                    showAlert(result.error || '项目创建失败', 'error');
+                }
+            } catch (error) {
+                console.error('创建项目失败:', error);
+                showAlert('项目创建失败，请重试', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 加载游戏列表
+        async function loadGames() {
+            try {
+                // 获取所有游戏（暂时简化，实际应该根据项目筛选）
+                const response = await fetch('/api/games');
+                const result = await response.json();
+                
+                if (response.ok) {
+                    games = result;
+                    renderGames();
+                } else {
+                    // 使用模拟数据作为备用
+                    games = [
+                        { id: 1, project_id: 1, name: '王者荣耀', description: '5v5竞技手游' },
+                        { id: 2, project_id: 1, name: '英雄联盟', description: 'MOBA竞技游戏' }
+                    ];
+                    renderGames();
+                }
+            } catch (error) {
+                console.error('加载游戏失败:', error);
+                // 使用模拟数据作为备用
+                games = [
+                    { id: 1, project_id: 1, name: '王者荣耀', description: '5v5竞技手游' },
+                    { id: 2, project_id: 1, name: '英雄联盟', description: 'MOBA竞技游戏' }
+                ];
+                renderGames();
+            }
+        }
+
+        // 渲染游戏列表
+        function renderGames() {
+            const gameGrid = document.getElementById('gameGrid');
+            gameGrid.innerHTML = '';
+            
+            games.forEach(game => {
+                const gameCard = document.createElement('div');
+                gameCard.className = 'hierarchy-card';
+                gameCard.innerHTML = `
+                    <h4>${game.name}</h4>
+                    <p>${game.description || '暂无描述'}</p>
+                    <div class="hierarchy-actions">
+                        <button class="btn btn-primary btn-sm" onclick="viewGameServers(${game.id})">
+                            <i class="fas fa-server"></i> 查看区服
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="editGame(${game.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteGame(${game.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                `;
+                gameGrid.appendChild(gameCard);
+            });
+        }
+
+        // 处理游戏表单提交
+        async function handleGameSubmit(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const gameData = {
+                project_id: parseInt(formData.get('project_id')),
+                name: formData.get('name'),
+                description: formData.get('description')
+            };
+            
+            try {
+                const response = await fetch(`/api/projects/${gameData.project_id}/games`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gameData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('游戏创建成功！', 'success');
+                    e.target.reset();
+                    loadGames(); // 重新加载游戏列表
+                } else {
+                    showAlert(result.error || '游戏创建失败', 'error');
+                }
+            } catch (error) {
+                console.error('创建游戏失败:', error);
+                showAlert('游戏创建失败，请重试', 'error');
+            }
+        }
+
+        // 加载区服列表
+        async function loadServers() {
+            try {
+                // 获取所有区服（暂时简化，实际应该根据游戏筛选）
+                const response = await fetch('/api/servers');
+                const result = await response.json();
+                
+                if (response.ok) {
+                    servers = result;
+                    renderServers();
+                } else {
+                    // 使用模拟数据作为备用
+                    servers = [
+                        { id: 1, game_id: 1, name: '1区-测试服', server_id: 'server_001', description: '测试服务器' },
+                        { id: 2, game_id: 1, name: '2区-正式服', server_id: 'server_002', description: '正式服务器' }
+                    ];
+                    renderServers();
+                }
+            } catch (error) {
+                console.error('加载区服失败:', error);
+                // 使用模拟数据作为备用
+                servers = [
+                    { id: 1, game_id: 1, name: '1区-测试服', server_id: 'server_001', description: '测试服务器' },
+                    { id: 2, game_id: 1, name: '2区-正式服', server_id: 'server_002', description: '正式服务器' }
+                ];
+                renderServers();
+            }
+        }
+
+        // 渲染区服列表
+        async function renderServers() {
+            const serverGrid = document.getElementById('serverGrid');
+            serverGrid.innerHTML = '';
+            
+            for (const server of servers) {
+                // 获取游戏信息
+                let gameName = '未知游戏';
+                try {
+                    const gameResponse = await fetch(`/api/games/${server.game_id}`);
+                    if (gameResponse.ok) {
+                        const game = await gameResponse.json();
+                        gameName = game.name;
+                        
+                        // 获取项目信息
+                        let projectName = '未知项目';
+                        try {
+                            const projectResponse = await fetch(`/api/projects/${game.project_id}`);
+                            if (projectResponse.ok) {
+                                const project = await projectResponse.json();
+                                projectName = project.name;
+                            }
+                        } catch (error) {
+                            console.error('获取项目信息失败:', error);
+                        }
+                        
+                        const serverCard = document.createElement('div');
+                        serverCard.className = 'hierarchy-card';
+                        serverCard.innerHTML = `
+                            <h4>${server.name}</h4>
+                            <p><strong>项目:</strong> ${projectName}</p>
+                            <p><strong>游戏:</strong> ${gameName}</p>
+                            <p><strong>区服ID:</strong> ${server.server_id}</p>
+                            <p>${server.description || '暂无描述'}</p>
+                            <div class="hierarchy-actions">
+                                <button class="btn btn-primary btn-sm" onclick="generateServerConfig(${server.id})">
+                                    <i class="fas fa-magic"></i> 生成配置
+                                </button>
+                                <button class="btn btn-success btn-sm" onclick="generateAllConfigs(${server.id})">
+                                    <i class="fas fa-download"></i> 批量生成
+                                </button>
+                                <button class="btn btn-secondary btn-sm" onclick="editServer(${server.id})">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteServer(${server.id})">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        `;
+                        serverGrid.appendChild(serverCard);
+                    }
+                } catch (error) {
+                    console.error('获取游戏信息失败:', error);
+                    // 如果获取失败，显示基本信息
+                    const serverCard = document.createElement('div');
+                    serverCard.className = 'hierarchy-card';
+                    serverCard.innerHTML = `
+                        <h4>${server.name}</h4>
+                        <p>区服ID: ${server.server_id}</p>
+                        <p>${server.description || '暂无描述'}</p>
+                        <div class="hierarchy-actions">
+                            <button class="btn btn-primary btn-sm" onclick="generateServerConfig(${server.id})">
+                                <i class="fas fa-magic"></i> 生成配置
+                            </button>
+                            <button class="btn btn-success btn-sm" onclick="generateAllConfigs(${server.id})">
+                                <i class="fas fa-download"></i> 批量生成
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="editServer(${server.id})">
+                                <i class="fas fa-edit"></i> 编辑
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteServer(${server.id})">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    `;
+                    serverGrid.appendChild(serverCard);
+                }
+            }
+        }
+
+        // 处理区服表单提交
+        async function handleServerSubmit(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const serverData = {
+                game_id: parseInt(formData.get('game_id')),
+                name: formData.get('name'),
+                server_id: formData.get('server_id'),
+                description: formData.get('description')
+            };
+            
+            try {
+                const response = await fetch(`/api/games/${serverData.game_id}/servers`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(serverData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('区服创建成功！', 'success');
+                    e.target.reset();
+                    loadServers(); // 重新加载区服列表
+                } else {
+                    showAlert(result.error || '区服创建失败', 'error');
+                }
+            } catch (error) {
+                console.error('创建区服失败:', error);
+                showAlert('区服创建失败，请重试', 'error');
+            }
+        }
+
+        // 加载模板列表
+        async function loadTemplates() {
+            try {
+                const response = await fetch('/api/templates');
+                const result = await response.json();
+                
+                if (response.ok) {
+                    templates = result;
+                    renderTemplates();
+                } else {
+                    // 如果API调用失败，显示空列表而不是模拟数据
+                    templates = [];
+                    renderTemplates();
+                    showAlert('加载模板失败，请检查网络连接', 'error');
+                }
+            } catch (error) {
+                console.error('加载模板失败:', error);
+                // 如果发生错误，显示空列表而不是模拟数据
+                templates = [];
+                renderTemplates();
+                showAlert('加载模板失败，请检查网络连接', 'error');
+            }
+        }
+
+        // 渲染模板列表（按游戏分组）
+        function renderTemplates() {
+            const templateGrid = document.getElementById('templateGrid');
+            templateGrid.innerHTML = '';
+            
+            if (templates.length === 0) {
+                templateGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-file-code" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
+                        <h3>暂无模板</h3>
+                        <p>请创建您的第一个配置文件模板</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 按游戏分组模板
+            const groupedTemplates = {};
+            templates.forEach(template => {
+                const gameKey = `${template.project_name || '未知项目'}_${template.game_name || '未知游戏'}`;
+                if (!groupedTemplates[gameKey]) {
+                    groupedTemplates[gameKey] = {
+                        project_name: template.project_name || '未知项目',
+                        game_name: template.game_name || '未知游戏',
+                        templates: []
+                    };
+                }
+                groupedTemplates[gameKey].templates.push(template);
+            });
+            
+            // 渲染分组后的模板
+            Object.values(groupedTemplates).forEach(group => {
+                const gameCard = document.createElement('div');
+                gameCard.className = 'hierarchy-card game-group-card';
+                gameCard.innerHTML = `
+                    <div class="game-group-header">
+                        <h4><i class="fas fa-gamepad"></i> ${group.game_name}</h4>
+                        <span class="project-badge">${group.project_name}</span>
+                        <span class="template-count">${group.templates.length} 个模板</span>
+                    </div>
+                    <div class="templates-list">
+                        ${group.templates.map(template => `
+                            <div class="template-item">
+                                <div class="template-info">
+                                    <span class="template-name">${template.name || '未命名模板'}</span>
+                                    <span class="template-path">${template.file_path || '未设置路径'}</span>
+                                </div>
+                                <div class="template-actions">
+                                    <button class="btn btn-primary btn-xs" onclick="editTemplate(${template.id})" title="编辑模板">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-xs" onclick="deleteTemplate(${template.id})" title="删除模板">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                templateGrid.appendChild(gameCard);
+            });
+        }
+
+        // 处理模板表单提交
+        async function handleTemplateSubmit(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const templateData = {
+                project_id: parseInt(formData.get('project_id')),
+                game_id: parseInt(formData.get('game_id')),
+                name: formData.get('name'),
+                file_path: formData.get('file_path'),
+                template_content: formData.get('template_content')
+            };
+            
+            // 保存模板名称和文件路径到本地存储
+            if (templateData.name) {
+                localStorage.setItem('lastTemplateName', templateData.name);
+            }
+            if (templateData.file_path) {
+                localStorage.setItem('lastTemplateFilePath', templateData.file_path);
+            }
+            if (templateData.template_content) {
+                localStorage.setItem('lastTemplateContent', templateData.template_content);
+            }
+            
+            // 解析模板内容中的配置项
+            const configItems = parseTemplateConfigItems(templateData.template_content);
+            
+            try {
+                const response = await fetch(`/api/projects/${templateData.project_id}/games/${templateData.game_id}/templates`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ...templateData,
+                        config_items: configItems
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('配置文件模板创建成功！', 'success');
+                    e.target.reset();
+                    loadTemplates(); // 重新加载模板列表
+                } else {
+                    showAlert(result.error || '模板创建失败', 'error');
+                }
+            } catch (error) {
+                console.error('创建模板失败:', error);
+                showAlert('模板创建失败，请重试', 'error');
+            }
+        }
+
+        // 加载模板示例
+        function loadTemplateExample(type, textareaId = 'templateContent') {
+            const textarea = document.getElementById(textareaId);
+            if (!textarea) {
+                console.error('找不到textarea:', textareaId);
+                return;
+            }
+            
+            const examples = {
+                'env': `# 应用配置文件
+# 生成时间: {{generated_time}}
+
+# 应用基本信息
+APP_NAME={{app_name}}
+APP_VERSION={{app_version}}
+APP_ENV={{app_env}}
+
+# 数据库配置
+DATABASE_URL={{database_url}}
+DATABASE_POOL_SIZE={{database_pool_size}}
+
+# 服务器配置
+SERVER_HOST={{server_host}}
+SERVER_PORT={{server_port}}
+DEBUG_MODE={{debug_mode}}
+
+# 日志配置
+LOG_LEVEL={{log_level}}
+LOG_FILE={{log_file}}
+
+# 缓存配置
+CACHE_ENABLED={{cache_enabled}}
+CACHE_TTL={{cache_ttl}}
+
+# 安全配置
+SECRET_KEY={{secret_key}}
+SESSION_TIMEOUT={{session_timeout}}`,
+                
+                'json': `{
+  "app": {
+    "name": "{{app_name}}",
+    "version": "{{app_version}}",
+    "environment": "{{app_env}}"
+  },
+  "database": {
+    "url": "{{database_url}}",
+    "pool_size": {{database_pool_size}},
+    "timeout": {{database_timeout}}
+  },
+  "server": {
+    "host": "{{server_host}}",
+    "port": {{server_port}},
+    "debug": {{debug_mode}}
+  },
+  "logging": {
+    "level": "{{log_level}}",
+    "file": "{{log_file}}",
+    "max_size": "{{log_max_size}}"
+  },
+  "cache": {
+    "enabled": {{cache_enabled}},
+    "ttl": {{cache_ttl}},
+    "type": "{{cache_type}}"
+  },
+  "security": {
+    "secret_key": "{{secret_key}}",
+    "session_timeout": {{session_timeout}},
+    "jwt_expiry": {{jwt_expiry}}
+  }
+}`,
+                
+                'xml': `<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appSettings>
+    <add key="AppName" value="{{app_name}}" />
+    <add key="AppVersion" value="{{app_version}}" />
+    <add key="Environment" value="{{app_env}}" />
+  </appSettings>
+  
+  <connectionStrings>
+    <add name="DefaultConnection" 
+         connectionString="{{database_url}}" 
+         providerName="System.Data.SqlClient" />
+  </connectionStrings>
+  
+  <system.web>
+    <compilation debug="{{debug_mode}}" targetFramework="4.8" />
+    <httpRuntime maxRequestLength="{{max_request_length}}" />
+  </system.web>
+  
+  <system.webServer>
+    <defaultDocument>
+      <files>
+        <add value="{{default_page}}" />
+      </files>
+    </defaultDocument>
+  </system.webServer>
+</configuration>`
+            };
+            
+            if (examples[type]) {
+                textarea.value = examples[type];
+                showAlert(`已加载${type.toUpperCase()}格式示例`, 'success');
+            }
+        }
+
+        // 解析模板配置项
+        function parseTemplateConfigItems(templateContent) {
+            const regex = /\{\{([^}]+)\}\}/g;
+            const configItems = [];
+            const seen = new Set();
+            
+            let match;
+            while ((match = regex.exec(templateContent)) !== null) {
+                const key = match[1].trim();
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    configItems.push({
+                        key: key,
+                        label: generateFriendlyLabel(key),
+                        default_value: getDefaultValue(key)
+                    });
+                }
+            }
+            
+            return configItems;
+        }
+
+        // 生成友好标签
+        function generateFriendlyLabel(varName) {
+            const labelMap = {
+                'server_id': '区服ID',
+                'server_name': '区服名称',
+                'server_port': '游戏端口',
+                'server_host': '服务器地址',
+                'db_host': '数据库主机',
+                'db_port': '数据库端口',
+                'db_name': '数据库名称',
+                'db_user': '数据库用户',
+                'db_password': '数据库密码',
+                'game_name': '游戏名称',
+                'max_players': '最大玩家数',
+                'secret_key': '密钥'
+            };
+            
+            return labelMap[varName] || varName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        // 获取默认值
+        function getDefaultValue(varName) {
+            const defaultMap = {
+                'server_id': 'server_001',
+                'server_name': '测试区服',
+                'server_port': '8080',
+                'server_host': 'localhost',
+                'db_host': 'localhost',
+                'db_port': '3306',
+                'db_name': 'game_db',
+                'db_user': 'root',
+                'db_password': 'password',
+                'game_name': '我的游戏',
+                'max_players': '1000',
+                'secret_key': 'your-secret-key'
+            };
+            
+            return defaultMap[varName] || '';
+        }
+
+        // 加载项目到选择框
+        function loadProjectsForSelect() {
+            const selectProject = document.getElementById('selectProject');
+            selectProject.innerHTML = '<option value="">请选择项目...</option>';
+            
+            projects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.id;
+                option.textContent = project.name;
+                selectProject.appendChild(option);
+            });
+        }
+
+        // 加载游戏到选择框
+        function loadGamesForSelect() {
+            const selectGame = document.getElementById('selectGame');
+            selectGame.innerHTML = '<option value="">请选择游戏...</option>';
+            
+            games.forEach(game => {
+                const option = document.createElement('option');
+                option.value = game.id;
+                option.textContent = game.name;
+                selectGame.appendChild(option);
+            });
+        }
+
+        // 加载项目到模板选择框
+        function loadProjectsForTemplateSelect() {
+            const templateProject = document.getElementById('templateProject');
+            templateProject.innerHTML = '<option value="">请选择项目...</option>';
+            
+            projects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.id;
+                option.textContent = project.name;
+                templateProject.appendChild(option);
+            });
+            
+            // 恢复上次选择的项目
+            const lastProjectId = localStorage.getItem('lastTemplateProjectId');
+            if (lastProjectId) {
+                templateProject.value = lastProjectId;
+                loadGamesForTemplateSelect(lastProjectId);
+            }
+            
+            // 添加项目选择变化事件
+            templateProject.addEventListener('change', function() {
+                const projectId = this.value;
+                if (projectId) {
+                    localStorage.setItem('lastTemplateProjectId', projectId);
+                    loadGamesForTemplateSelect(projectId);
+                } else {
+                    localStorage.removeItem('lastTemplateProjectId');
+                    const templateGame = document.getElementById('templateGame');
+                    templateGame.innerHTML = '<option value="">请选择游戏...</option>';
+                }
+            });
+        }
+
+        // 为模板选择框加载游戏
+        async function loadGamesForTemplateSelect(projectId) {
+            try {
+                const response = await fetch(`/api/projects/${projectId}/games`);
+                const result = await response.json();
+                
+                const templateGame = document.getElementById('templateGame');
+                templateGame.innerHTML = '<option value="">请选择游戏...</option>';
+                
+                if (response.ok) {
+                    result.forEach(game => {
+                        const option = document.createElement('option');
+                        option.value = game.id;
+                        option.textContent = game.name;
+                        templateGame.appendChild(option);
+                    });
+                    
+                    // 恢复上次选择的游戏
+                    const lastGameId = localStorage.getItem('lastTemplateGameId');
+                    if (lastGameId) {
+                        templateGame.value = lastGameId;
+                    }
+                    
+                    // 添加游戏选择变化监听器
+                    templateGame.addEventListener('change', function() {
+                        const gameId = this.value;
+                        if (gameId) {
+                            localStorage.setItem('lastTemplateGameId', gameId);
+                        } else {
+                            localStorage.removeItem('lastTemplateGameId');
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('加载游戏失败:', error);
+            }
+        }
+
+        // 加载项目到生成器选择框
+        function loadProjectsForGeneratorSelect() {
+            const genProject = document.getElementById('genProject');
+            genProject.innerHTML = '<option value="">请选择项目...</option>';
+            
+            projects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.id;
+                option.textContent = project.name;
+                genProject.appendChild(option);
+            });
+        }
+
+        // 生成配置文件
+        // 生成配置
+        async function generateConfig() {
+            if (!selectedServer || !selectedTemplate) {
+                showAlert('请先选择区服和模板', 'error');
+                return;
+            }
+            
+            try {
+                // 收集配置数据
+                const configData = {};
+                const inputs = document.querySelectorAll('#configItems input');
+                
+                inputs.forEach(input => {
+                    configData[input.dataset.key] = input.value;
+                });
+                
+                showLoading('正在生成配置文件...');
+                
+                const requestData = {
+                    server_id: selectedServer.id,
+                    template_id: selectedTemplate.id,
+                    config_data: configData
+                };
+                
+                const response = await fetch('/api/generate-config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                hideLoading();
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('配置文件生成成功！', 'success');
+                } else {
+                    console.error('生成配置失败:', result);
+                    showAlert(result.error || '配置文件生成失败', 'error');
+                }
+            } catch (error) {
+                showAlert('配置文件生成失败，请重试', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 打开生成目录
+        async function openGeneratedFolder() {
+            if (!selectedServer) {
+                showAlert('请先选择区服', 'error');
+                return;
+            }
+            
+            try {
+                // 获取服务器信息
+                const serverResponse = await fetch(`/api/servers/${selectedServer.id}`);
+                if (!serverResponse.ok) {
+                    showAlert('获取服务器信息失败', 'error');
+                    return;
+                }
+                const server = await serverResponse.json();
+                
+                // 获取游戏和项目信息
+                const gameResponse = await fetch(`/api/games/${server.game_id}`);
+                const game = await gameResponse.json();
+                const projectResponse = await fetch(`/api/projects/${game.project_id}`);
+                const project = await projectResponse.json();
+                
+                // 使用后端API获取生成目录的绝对路径
+                const response = await fetch('/api/get-generated-path', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        project_name: project.name,
+                        game_name: game.name,
+                        server_name: server.name || server.server_id
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert(`生成目录: ${result.path}`, 'info');
+                    
+                    // 尝试打开文件夹
+                    if (navigator.userAgent.includes('Windows')) {
+                        // Windows系统
+                        try {
+                            await fetch('/api/open-folder', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ path: result.path })
+                            });
+                        } catch (e) {
+                            showAlert('无法自动打开文件夹，请手动访问: ' + result.path, 'warning');
+                        }
+                    } else {
+                        showAlert('请手动访问生成目录: ' + result.path, 'info');
+                    }
+                } else {
+                    showAlert('获取生成目录路径失败', 'error');
+                }
+            } catch (error) {
+                console.error('打开生成目录失败:', error);
+                showAlert('打开生成目录失败，请重试', 'error');
+            }
+        }
+
+        // 下载生成文件的ZIP包
+        async function downloadGeneratedZip() {
+            if (!selectedServer) {
+                showAlert('请先选择区服', 'error');
+                return;
+            }
+            
+            try {
+                showLoading('正在打包生成文件...');
+                
+                // 获取服务器信息
+                const serverResponse = await fetch(`/api/servers/${selectedServer.id}`);
+                if (!serverResponse.ok) {
+                    showAlert('获取服务器信息失败', 'error');
+                    return;
+                }
+                const server = await serverResponse.json();
+                
+                // 获取游戏和项目信息
+                const gameResponse = await fetch(`/api/games/${server.game_id}`);
+                const game = await gameResponse.json();
+                const projectResponse = await fetch(`/api/projects/${game.project_id}`);
+                const project = await projectResponse.json();
+                
+                // 调用后端API创建ZIP包
+                const response = await fetch('/api/download-generated-zip', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        project_name: project.name,
+                        game_name: game.name,
+                        server_name: server.name || server.server_id
+                    })
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${project.name}_${game.name}_${server.name || server.server_id}_configs.zip`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showAlert('ZIP包下载成功！', 'success');
+                } else {
+                    const error = await response.json();
+                    showAlert(error.error || 'ZIP包创建失败', 'error');
+                }
+            } catch (error) {
+                console.error('下载ZIP包失败:', error);
+                showAlert('下载ZIP包失败，请重试', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 返回配置编辑表单
+        function backToConfigForm() {
+            document.getElementById('configPreview').style.display = 'none';
+            document.getElementById('configForm').style.display = 'block';
+        }
+
+        // 生成服务器配置（单个）
+        async function generateServerConfig(serverId) {
+            try {
+                // 获取服务器信息
+                const serverResponse = await fetch(`/api/servers/${serverId}`);
+                if (!serverResponse.ok) {
+                    showAlert('获取服务器信息失败', 'error');
+                    return;
+                }
+                const server = await serverResponse.json();
+                
+                // 跳转到配置生成页面
+                showTab('generator');
+                
+                // 设置选中的服务器
+                document.getElementById('genProject').value = '';
+                document.getElementById('genGame').value = '';
+                document.getElementById('genServer').value = serverId;
+                document.getElementById('genTemplate').value = '';
+                
+                // 加载相关数据
+                await setSelectedServer();
+                
+                // 获取游戏信息并加载
+                const gameResponse = await fetch(`/api/games/${server.game_id}`);
+                if (gameResponse.ok) {
+                    const game = await gameResponse.json();
+                    document.getElementById('genProject').value = game.project_id;
+                    await loadGamesForProject();
+                    document.getElementById('genGame').value = game.id;
+                    await loadServersForGame();
+                    await loadTemplatesForGame();
+                }
+                
+                showAlert('请选择要生成的模板', 'info');
+                
+            } catch (error) {
+                console.error('生成服务器配置失败:', error);
+                showAlert('生成服务器配置失败，请重试', 'error');
+            }
+        }
+
+        // 批量生成所有配置文件
+        async function generateAllConfigs(serverId) {
+            try {
+                // 获取服务器信息
+                const serverResponse = await fetch(`/api/servers/${serverId}`);
+                if (!serverResponse.ok) {
+                    showAlert('获取服务器信息失败', 'error');
+                    return;
+                }
+                const server = await serverResponse.json();
+                
+                // 获取游戏信息
+                const gameResponse = await fetch(`/api/games/${server.game_id}`);
+                if (!gameResponse.ok) {
+                    showAlert('获取游戏信息失败', 'error');
+                    return;
+                }
+                const game = await gameResponse.json();
+                
+                // 获取该游戏的所有模板
+                const templatesResponse = await fetch(`/api/projects/${game.project_id}/games/${game.game_id}/templates`);
+                if (!templatesResponse.ok) {
+                    showAlert('获取模板列表失败', 'error');
+                    return;
+                }
+                const templates = await templatesResponse.json();
+                
+                if (templates.length === 0) {
+                    showAlert('该游戏没有配置模板', 'warning');
+                    return;
+                }
+                
+                showLoading('正在批量生成配置文件...');
+                
+                const generatedFiles = [];
+                
+                // 为每个模板生成配置文件
+                for (const template of templates) {
+                    try {
+                        // 获取模板的配置项
+                        const configItems = template.config_items || [];
+                        const configData = {};
+                        
+                        // 为每个配置项设置默认值
+                        configItems.forEach(item => {
+                            configData[item.key] = getDefaultValue(item.key);
+                        });
+                        
+                        // 生成配置文件
+                        const response = await fetch('/api/generate-config', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                server_id: serverId,
+                                template_id: template.id,
+                                config_data: configData
+                            })
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (response.ok) {
+                            generatedFiles.push({
+                                name: template.name,
+                                content: result.generated_content,
+                                filePath: template.file_path
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`生成模板 ${template.name} 失败:`, error);
+                    }
+                }
+                
+                hideLoading();
+                
+                if (generatedFiles.length > 0) {
+                    // 创建ZIP文件
+                    await createAndDownloadZip(generatedFiles, server.name);
+                    showAlert(`成功生成 ${generatedFiles.length} 个配置文件！`, 'success');
+                } else {
+                    showAlert('没有成功生成任何配置文件', 'error');
+                }
+                
+            } catch (error) {
+                hideLoading();
+                console.error('批量生成配置失败:', error);
+                showAlert('批量生成配置失败，请重试', 'error');
+            }
+        }
+        
+        // 创建并下载ZIP文件
+        async function createAndDownloadZip(files, serverName) {
+            // 这里需要引入JSZip库，或者使用简单的文件下载
+            // 为了简化，我们逐个下载文件
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const blob = new Blob([file.content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${serverName}_${file.name}_${Date.now()}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // 添加延迟避免浏览器阻止多个下载
+                if (i < files.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+        }
+        
+        // 获取配置项的默认值
+        function getDefaultValue(key) {
+            const defaultMap = {
+                'app_name': '游戏应用',
+                'app_version': '1.0.0',
+                'app_env': 'production',
+                'database_url': 'localhost:3306',
+                'database_pool_size': '10',
+                'server_host': '0.0.0.0',
+                'server_port': '8080',
+                'debug_mode': 'false',
+                'log_level': 'info',
+                'log_file': 'app.log',
+                'cache_enabled': 'true',
+                'cache_ttl': '3600',
+                'secret_key': 'your-secret-key',
+                'session_timeout': '1800'
+            };
+            return defaultMap[key] || '';
+        }
+
+        // 预览配置
+        function previewConfig() {
+            if (!selectedTemplate) {
+                showAlert('请先选择模板', 'error');
+                return;
+            }
+            
+            try {
+                // 收集配置数据
+                const configData = {};
+                document.querySelectorAll('#configItems input').forEach(input => {
+                    configData[input.dataset.key] = input.value;
+                });
+                
+                // 替换模板中的变量
+                let previewContent = selectedTemplate.template_content || '';
+                for (const [key, value] of Object.entries(configData)) {
+                    const placeholder = `{{${key}}}`;
+                    previewContent = previewContent.replace(new RegExp(placeholder, 'g'), value);
+                }
+                
+                document.getElementById('previewContent').textContent = previewContent;
+                document.getElementById('configPreview').style.display = 'block';
+                document.getElementById('configForm').style.display = 'none';
+                
+            } catch (error) {
+                showAlert('预览失败，请重试', 'error');
+            }
+        }
+
+        // 显示加载状态
+        function showLoading(message = '加载中...') {
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.id = 'loadingOverlay';
+            overlay.innerHTML = `
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>${message}</p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        // 隐藏加载状态
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+
+        // 编辑项目
+        async function editProject(projectId) {
+            try {
+                // 获取项目详细信息
+                const response = await fetch(`/api/projects/${projectId}`);
+                if (!response.ok) {
+                    showAlert('获取项目信息失败', 'error');
+                    return;
+                }
+                const project = await response.json();
+                
+                // 创建编辑模态框
+                showEditProjectModal(project);
+            } catch (error) {
+                console.error('获取项目信息失败:', error);
+                showAlert('获取项目信息失败，请重试', 'error');
+            }
+        }
+
+        // 显示编辑项目模态框
+        function showEditProjectModal(project) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-edit"></i> 编辑项目</h3>
+                        <button class="modal-close" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editProjectForm" class="template-form">
+                            <div class="form-group">
+                                <label for="editProjectName">项目名称</label>
+                                <input type="text" id="editProjectName" value="${project.name || ''}" 
+                                       placeholder="请输入项目名称" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editProjectDescription">项目描述</label>
+                                <textarea id="editProjectDescription" rows="4" 
+                                          placeholder="请输入项目描述">${project.description || ''}</textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                        <button class="btn btn-primary" onclick="updateProject(${project.id})">
+                            <i class="fas fa-save"></i> 保存修改
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 确保模态框样式存在
+            ensureModalStyles();
+        }
+
+        // 更新项目
+        async function updateProject(projectId) {
+            try {
+                const name = document.getElementById('editProjectName').value.trim();
+                const description = document.getElementById('editProjectDescription').value.trim();
+                
+                if (!name) {
+                    showAlert('项目名称不能为空', 'error');
+                    return;
+                }
+                
+                showLoading('正在更新项目...');
+                
+                const response = await fetch(`/api/projects/${projectId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        description: description
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('项目更新成功！', 'success');
+                    closeModal();
+                    loadProjects();
+                } else {
+                    showAlert(result.error || '项目更新失败', 'error');
+                }
+            } catch (error) {
+                console.error('更新项目失败:', error);
+                showAlert('项目更新失败，请重试', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 删除项目
+        function deleteProject(projectId) {
+            if (!confirm('确定要删除这个项目吗？此操作不可恢复！')) {
+                return;
+            }
+            
+            showLoading('正在删除项目...');
+            
+            fetch(`/api/projects/${projectId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    showAlert('项目删除成功！', 'success');
+                    loadProjects();
+                } else {
+                    showAlert(result.error || '项目删除失败', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('删除项目失败:', error);
+                showAlert('项目删除失败，请重试', 'error');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+        }
+
+        // 编辑游戏
+        async function editGame(gameId) {
+            try {
+                // 获取游戏详细信息
+                const response = await fetch(`/api/games/${gameId}`);
+                if (!response.ok) {
+                    showAlert('获取游戏信息失败', 'error');
+                    return;
+                }
+                const game = await response.json();
+                
+                // 创建编辑模态框
+                showEditGameModal(game);
+            } catch (error) {
+                console.error('获取游戏信息失败:', error);
+                showAlert('获取游戏信息失败，请重试', 'error');
+            }
+        }
+
+        // 显示编辑游戏模态框
+        function showEditGameModal(game) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-edit"></i> 编辑游戏</h3>
+                        <button class="modal-close" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editGameForm" class="template-form">
+                            <div class="form-group">
+                                <label for="editGameName">游戏名称</label>
+                                <input type="text" id="editGameName" value="${game.name || ''}" 
+                                       placeholder="请输入游戏名称" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editGameDescription">游戏描述</label>
+                                <textarea id="editGameDescription" rows="4" 
+                                          placeholder="请输入游戏描述">${game.description || ''}</textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                        <button class="btn btn-primary" onclick="updateGame(${game.id})">
+                            <i class="fas fa-save"></i> 保存修改
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 确保模态框样式存在
+            ensureModalStyles();
+        }
+
+        // 更新游戏
+        async function updateGame(gameId) {
+            try {
+                const name = document.getElementById('editGameName').value.trim();
+                const description = document.getElementById('editGameDescription').value.trim();
+                
+                if (!name) {
+                    showAlert('游戏名称不能为空', 'error');
+                    return;
+                }
+                
+                showLoading('正在更新游戏...');
+                
+                const response = await fetch(`/api/games/${gameId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        description: description
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('游戏更新成功！', 'success');
+                    closeModal();
+                    loadGames();
+                } else {
+                    showAlert(result.error || '游戏更新失败', 'error');
+                }
+            } catch (error) {
+                console.error('更新游戏失败:', error);
+                showAlert('游戏更新失败，请重试', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 删除游戏
+        function deleteGame(gameId) {
+            if (!confirm('确定要删除这个游戏吗？此操作不可恢复！')) {
+                return;
+            }
+            
+            showLoading('正在删除游戏...');
+            
+            fetch(`/api/games/${gameId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    showAlert('游戏删除成功！', 'success');
+                    loadGames();
+                } else {
+                    showAlert(result.error || '游戏删除失败', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('删除游戏失败:', error);
+                showAlert('游戏删除失败，请重试', 'error');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+        }
+
+        // 编辑区服
+        async function editServer(serverId) {
+            try {
+                // 获取区服详细信息
+                const response = await fetch(`/api/servers/${serverId}`);
+                if (!response.ok) {
+                    showAlert('获取区服信息失败', 'error');
+                    return;
+                }
+                const server = await response.json();
+                
+                // 创建编辑模态框
+                showEditServerModal(server);
+            } catch (error) {
+                console.error('获取区服信息失败:', error);
+                showAlert('获取区服信息失败，请重试', 'error');
+            }
+        }
+
+        // 显示编辑区服模态框
+        function showEditServerModal(server) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-edit"></i> 编辑区服</h3>
+                        <button class="modal-close" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editServerForm" class="template-form">
+                            <div class="form-group">
+                                <label for="editServerName">区服名称</label>
+                                <input type="text" id="editServerName" value="${server.name || ''}" 
+                                       placeholder="请输入区服名称" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editServerId">区服ID</label>
+                                <input type="text" id="editServerId" value="${server.server_id || ''}" 
+                                       placeholder="请输入区服ID" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editServerDescription">区服描述</label>
+                                <textarea id="editServerDescription" rows="4" 
+                                          placeholder="请输入区服描述">${server.description || ''}</textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                        <button class="btn btn-primary" onclick="updateServer(${server.id})">
+                            <i class="fas fa-save"></i> 保存修改
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 确保模态框样式存在
+            ensureModalStyles();
+        }
+
+        // 更新区服
+        async function updateServer(serverId) {
+            try {
+                const name = document.getElementById('editServerName').value.trim();
+                const serverIdValue = document.getElementById('editServerId').value.trim();
+                const description = document.getElementById('editServerDescription').value.trim();
+                
+                if (!name || !serverIdValue) {
+                    showAlert('区服名称和区服ID不能为空', 'error');
+                    return;
+                }
+                
+                showLoading('正在更新区服...');
+                
+                const response = await fetch(`/api/servers/${serverId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        server_id: serverIdValue,
+                        description: description
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('区服更新成功！', 'success');
+                    closeModal();
+                    loadServers();
+                } else {
+                    showAlert(result.error || '区服更新失败', 'error');
+                }
+            } catch (error) {
+                console.error('更新区服失败:', error);
+                showAlert('区服更新失败，请重试', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 删除区服
+        function deleteServer(serverId) {
+            if (!confirm('确定要删除这个区服吗？此操作不可恢复！')) {
+                return;
+            }
+            
+            showLoading('正在删除区服...');
+            
+            fetch(`/api/servers/${serverId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    showAlert('区服删除成功！', 'success');
+                    loadServers();
+                } else {
+                    showAlert(result.error || '区服删除失败', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('删除区服失败:', error);
+                showAlert('区服删除失败，请重试', 'error');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // 占位函数
+        async function viewProjectGames(projectId) {
+            try {
+                showLoading('正在加载游戏列表...');
+                
+                // 获取项目信息
+                const projectResponse = await fetch(`/api/projects/${projectId}`);
+                if (!projectResponse.ok) {
+                    showAlert('获取项目信息失败', 'error');
+                    return;
+                }
+                const project = await projectResponse.json();
+                
+                // 获取项目下的游戏列表
+                const gamesResponse = await fetch(`/api/projects/${projectId}/games`);
+                if (!gamesResponse.ok) {
+                    showAlert('获取游戏列表失败', 'error');
+                    return;
+                }
+                const games = await gamesResponse.json();
+                
+                hideLoading();
+                
+                // 显示游戏列表模态框
+                showProjectGamesModal(project, games);
+                
+            } catch (error) {
+                hideLoading();
+                console.error('获取游戏列表失败:', error);
+                showAlert('获取游戏列表失败，请重试', 'error');
+            }
+        }
+        
+        function showProjectGamesModal(project, games) {
+            // 创建模态框
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-gamepad"></i> ${project.name} - 游戏列表</h3>
+                        <button class="modal-close" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="project-info" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <h4>${project.name}</h4>
+                            <p>${project.description || '暂无描述'}</p>
+                        </div>
+                        
+                        <div class="games-section">
+                            <h4><i class="fas fa-list"></i> 游戏列表 (${games.length} 个)</h4>
+                            <div id="projectGamesList" class="games-list" style="margin-top: 15px;">
+                                ${games.length === 0 ? 
+                                    '<div class="empty-state" style="text-align: center; padding: 40px; color: #666;"><i class="fas fa-gamepad" style="font-size: 48px; margin-bottom: 16px;"></i><p>该项目下暂无游戏</p></div>' :
+                                    games.map(game => `
+                                        <div class="game-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 10px; background: white;">
+                                            <div class="game-info">
+                                                <h5 style="margin: 0; color: #333;">${game.name}</h5>
+                                                <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">${game.description || '暂无描述'}</p>
+                                            </div>
+                                            <div class="game-actions">
+                                                <button class="btn btn-primary btn-sm" onclick="viewGameServers(${game.id}); closeModal();" style="margin-right: 8px;">
+                                                    <i class="fas fa-server"></i> 查看区服
+                                                </button>
+                                                <button class="btn btn-secondary btn-sm" onclick="editGame(${game.id}); closeModal();" style="margin-right: 8px;">
+                                                    <i class="fas fa-edit"></i> 编辑
+                                                </button>
+                                                <button class="btn btn-danger btn-sm" onclick="deleteGame(${game.id}); closeModal();">
+                                                    <i class="fas fa-trash"></i> 删除
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal()">关闭</button>
+                        <button class="btn btn-primary" onclick="showTab('games'); closeModal();">
+                            <i class="fas fa-plus"></i> 添加游戏
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 确保模态框样式存在
+            ensureModalStyles();
+            
+            // 添加模态框样式
+            if (!document.getElementById('modalStyles')) {
+                const style = document.createElement('style');
+                style.id = 'modalStyles';
+                style.textContent = `
+                    .modal-overlay {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0, 0, 0, 0.5);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 1000;
+                    }
+                    .modal-content {
+                        background: white;
+                        border-radius: 12px;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                        max-height: 80vh;
+                        overflow-y: auto;
+                    }
+                    .modal-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 20px;
+                        border-bottom: 1px solid #e0e0e0;
+                    }
+                    .modal-header h3 {
+                        margin: 0;
+                        color: #333;
+                    }
+                    .modal-close {
+                        background: none;
+                        border: none;
+                        font-size: 24px;
+                        cursor: pointer;
+                        color: #666;
+                    }
+                    .modal-body {
+                        padding: 20px;
+                    }
+                    .modal-footer {
+                        display: flex;
+                        justify-content: flex-end;
+                        gap: 10px;
+                        padding: 20px;
+                        border-top: 1px solid #e0e0e0;
+                    }
+                    .games-list {
+                        max-height: 300px;
+                        overflow-y: auto;
+                    }
+                    .game-item:hover {
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        // 确保模态框样式存在
+        function ensureModalStyles() {
+            if (!document.getElementById('modalStyles')) {
+                const style = document.createElement('style');
+                style.id = 'modalStyles';
+                style.textContent = `
+                    .modal-overlay {
+                        position: fixed !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        width: 100% !important;
+                        height: 100% !important;
+                        background: rgba(0, 0, 0, 0.5) !important;
+                        display: flex !important;
+                        justify-content: center !important;
+                        align-items: center !important;
+                        z-index: 9999 !important;
+                    }
+                    .modal-content {
+                        background: white !important;
+                        border-radius: 12px !important;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+                        max-height: 80vh !important;
+                        overflow-y: auto !important;
+                        margin: 20px !important;
+                        position: relative !important;
+                    }
+                    .modal-header {
+                        display: flex !important;
+                        justify-content: space-between !important;
+                        align-items: center !important;
+                        padding: 20px !important;
+                        border-bottom: 1px solid #e0e0e0 !important;
+                    }
+                    .modal-header h3 {
+                        margin: 0 !important;
+                        color: #333 !important;
+                    }
+                    .modal-close {
+                        background: none !important;
+                        border: none !important;
+                        font-size: 24px !important;
+                        cursor: pointer !important;
+                        color: #666 !important;
+                        padding: 0 !important;
+                        width: 30px !important;
+                        height: 30px !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                    }
+                    .modal-body {
+                        padding: 20px !important;
+                    }
+                    .modal-footer {
+                        display: flex !important;
+                        justify-content: flex-end !important;
+                        gap: 10px !important;
+                        padding: 20px !important;
+                        border-top: 1px solid #e0e0e0 !important;
+                    }
+                    .template-examples {
+                        margin-bottom: 10px !important;
+                    }
+                    .template-examples button {
+                        margin-right: 8px !important;
+                        margin-bottom: 5px !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        function closeModal() {
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        async function viewGameServers(gameId) {
+            try {
+                showLoading('正在加载区服列表...');
+                
+                // 获取游戏信息
+                const gameResponse = await fetch(`/api/games/${gameId}`);
+                if (!gameResponse.ok) {
+                    showAlert('获取游戏信息失败', 'error');
+                    return;
+                }
+                const game = await gameResponse.json();
+                
+                // 获取项目信息
+                const projectResponse = await fetch(`/api/projects/${game.project_id}`);
+                if (!projectResponse.ok) {
+                    showAlert('获取项目信息失败', 'error');
+                    return;
+                }
+                const project = await projectResponse.json();
+                
+                // 获取游戏下的区服列表
+                const serversResponse = await fetch(`/api/games/${gameId}/servers`);
+                if (!serversResponse.ok) {
+                    showAlert('获取区服列表失败', 'error');
+                    return;
+                }
+                const servers = await serversResponse.json();
+                
+                hideLoading();
+                
+                // 显示区服列表模态框
+                showGameServersModal(project, game, servers);
+                
+            } catch (error) {
+                hideLoading();
+                console.error('获取区服列表失败:', error);
+                showAlert('获取区服列表失败，请重试', 'error');
+            }
+        }
+        
+        function showGameServersModal(project, game, servers) {
+            // 创建模态框
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 700px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-server"></i> ${game.name} - 区服列表</h3>
+                        <button class="modal-close" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="game-info" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <h4>${game.name}</h4>
+                            <p><strong>项目:</strong> ${project.name}</p>
+                            <p>${game.description || '暂无描述'}</p>
+                        </div>
+                        
+                        <div class="servers-section">
+                            <h4><i class="fas fa-list"></i> 区服列表 (${servers.length} 个)</h4>
+                            <div id="gameServersList" class="servers-list" style="margin-top: 15px;">
+                                ${servers.length === 0 ? 
+                                    '<div class="empty-state" style="text-align: center; padding: 40px; color: #666;"><i class="fas fa-server" style="font-size: 48px; margin-bottom: 16px;"></i><p>该游戏下暂无区服</p></div>' :
+                                    servers.map(server => `
+                                        <div class="server-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 10px; background: white;">
+                                            <div class="server-info">
+                                                <h5 style="margin: 0; color: #333;">${server.name}</h5>
+                                                <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">区服ID: ${server.server_id}</p>
+                                                <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">${server.description || '暂无描述'}</p>
+                                            </div>
+                                            <div class="server-actions">
+                                                <button class="btn btn-success btn-sm" onclick="generateServerConfig(${server.id}); closeModal();" style="margin-right: 8px;">
+                                                    <i class="fas fa-magic"></i> 生成配置
+                                                </button>
+                                                <button class="btn btn-primary btn-sm" onclick="generateAllConfigs(${server.id}); closeModal();" style="margin-right: 8px;">
+                                                    <i class="fas fa-download"></i> 批量生成
+                                                </button>
+                                                <button class="btn btn-secondary btn-sm" onclick="editServer(${server.id}); closeModal();" style="margin-right: 8px;">
+                                                    <i class="fas fa-edit"></i> 编辑
+                                                </button>
+                                                <button class="btn btn-danger btn-sm" onclick="deleteServer(${server.id}); closeModal();">
+                                                    <i class="fas fa-trash"></i> 删除
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal()">关闭</button>
+                        <button class="btn btn-primary" onclick="showTab('servers'); closeModal();">
+                            <i class="fas fa-plus"></i> 添加区服
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 确保模态框样式存在
+            ensureModalStyles();
+        }
+
+        // 生成配置（已移动到上面，这里删除重复定义）
+
+        // 为项目加载游戏
+        async function loadGamesForProject(projectId) {
+            try {
+                const response = await fetch(`/api/projects/${projectId}/games`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    const gameSelect = document.getElementById('generatorGame');
+                    if (gameSelect) {
+                        gameSelect.innerHTML = '<option value="">请选择游戏</option>';
+                        result.forEach(game => {
+                            const option = document.createElement('option');
+                            option.value = game.id;
+                            option.textContent = game.name;
+                            gameSelect.appendChild(option);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('加载游戏失败:', error);
+            }
+        }
+
+        // 为游戏加载区服
+        async function loadServersForGame(gameId) {
+            try {
+                const response = await fetch(`/api/games/${gameId}/servers`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    const serverSelect = document.getElementById('generatorServer');
+                    if (serverSelect) {
+                        serverSelect.innerHTML = '<option value="">请选择区服</option>';
+                        result.forEach(server => {
+                            const option = document.createElement('option');
+                            option.value = server.id;
+                            option.textContent = server.name;
+                            serverSelect.appendChild(option);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('加载区服失败:', error);
+            }
+        }
+
+
+        // 编辑模板
+        async function editTemplate(templateId) {
+            try {
+                // 获取模板详细信息
+                const response = await fetch(`/api/templates/${templateId}`);
+                if (!response.ok) {
+                    showAlert('获取模板信息失败', 'error');
+                    return;
+                }
+                const template = await response.json();
+                
+                // 创建编辑模态框
+                showEditTemplateModal(template);
+            } catch (error) {
+                console.error('获取模板信息失败:', error);
+                showAlert('获取模板信息失败，请重试', 'error');
+            }
+        }
+
+        // 显示编辑模板模态框
+        function showEditTemplateModal(template) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-edit"></i> 编辑模板</h3>
+                        <button class="modal-close" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editTemplateForm" class="template-form">
+                            <div class="form-group">
+                                <label for="editTemplateName">模板名称</label>
+                                <input type="text" id="editTemplateName" value="${template.name || ''}" 
+                                       placeholder="例如: 游戏配置文件" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editTemplatePath">文件路径</label>
+                                <input type="text" id="editTemplatePath" value="${template.file_path || ''}" 
+                                       placeholder="例如: config/game.conf" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editTemplateContent">模板内容</label>
+                                <div class="template-examples">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadTemplateExample('env', 'editTemplateContent')">
+                                        环境变量示例
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadTemplateExample('json', 'editTemplateContent')">
+                                        JSON配置示例
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadTemplateExample('xml', 'editTemplateContent')">
+                                        XML配置示例
+                                    </button>
+                                </div>
+                                <textarea id="editTemplateContent" rows="15" 
+                                          placeholder="输入配置文件模板内容,使用{{变量名}}格式定义可配置项...">${template.template_content || ''}</textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                        <button class="btn btn-primary" onclick="updateTemplate(${template.id})">
+                            <i class="fas fa-save"></i> 保存修改
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 确保模态框样式存在
+            ensureModalStyles();
+            
+            // 确保模态框样式存在
+            ensureModalStyles();
+        }
+
+        // 更新模板
+        async function updateTemplate(templateId) {
+            try {
+                const name = document.getElementById('editTemplateName').value.trim();
+                const filePath = document.getElementById('editTemplatePath').value.trim();
+                const templateContent = document.getElementById('editTemplateContent').value.trim();
+                
+                if (!name || !filePath) {
+                    showAlert('模板名称和文件路径不能为空', 'error');
+                    return;
+                }
+                
+                showLoading('正在更新模板...');
+                
+                const response = await fetch(`/api/templates/${templateId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        file_path: filePath,
+                        template_content: templateContent
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('模板更新成功！', 'success');
+                    closeModal();
+                    loadTemplates();
+                } else {
+                    showAlert(result.error || '模板更新失败', 'error');
+                }
+            } catch (error) {
+                console.error('更新模板失败:', error);
+                showAlert('模板更新失败，请重试', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // 删除模板
+        function deleteTemplate(templateId) {
+            if (!confirm('确定要删除这个模板吗？此操作不可恢复！')) {
+                return;
+            }
+            
+            showLoading('正在删除模板...');
+            
+            fetch(`/api/templates/${templateId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    showAlert('模板删除成功！', 'success');
+                    loadTemplates();
+                } else {
+                    showAlert(result.error || '模板删除失败', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('删除模板失败:', error);
+                showAlert('模板删除失败，请重试', 'error');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+        }
+
+        // 配置生成相关函数
+        async function loadGamesForProject() {
+            const projectId = document.getElementById('genProject').value;
+            if (!projectId) {
+                const genGame = document.getElementById('genGame');
+                genGame.innerHTML = '<option value="">请选择游戏...</option>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/projects/${projectId}/games`);
+                const result = await response.json();
+                
+                const genGame = document.getElementById('genGame');
+                genGame.innerHTML = '<option value="">请选择游戏...</option>';
+                
+                if (response.ok) {
+                    result.forEach(game => {
+                        const option = document.createElement('option');
+                        option.value = game.id;
+                        option.textContent = game.name;
+                        genGame.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('加载游戏失败:', error);
+            }
+        }
+
+        async function loadServersForGame() {
+            const gameId = document.getElementById('genGame').value;
+            if (!gameId) {
+                const genServer = document.getElementById('genServer');
+                genServer.innerHTML = '<option value="">请选择区服...</option>';
+                selectedServer = null;
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/games/${gameId}/servers`);
+                const result = await response.json();
+                
+                const genServer = document.getElementById('genServer');
+                genServer.innerHTML = '<option value="">请选择区服...</option>';
+                
+                if (response.ok) {
+                    result.forEach(server => {
+                        const option = document.createElement('option');
+                        option.value = server.id;
+                        option.textContent = server.name;
+                        genServer.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('加载区服失败:', error);
+            }
+        }
+
+        async function loadTemplatesForGame() {
+            const gameId = document.getElementById('genGame').value;
+            const projectId = document.getElementById('genProject').value;
+            
+            if (!gameId || !projectId) {
+                const genTemplate = document.getElementById('genTemplate');
+                genTemplate.innerHTML = '<option value="">请选择模板...</option>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/projects/${projectId}/games/${gameId}/templates`);
+                const result = await response.json();
+                
+                const genTemplate = document.getElementById('genTemplate');
+                genTemplate.innerHTML = '<option value="">请选择模板...</option>';
+                
+                if (response.ok) {
+                    result.forEach(template => {
+                        const option = document.createElement('option');
+                        option.value = template.id;
+                        option.textContent = template.name;
+                        genTemplate.appendChild(option);
+                    });
+                    
+                    // 添加模板选择变化监听器
+                    genTemplate.addEventListener('change', setSelectedTemplate);
+                }
+            } catch (error) {
+                console.error('加载模板失败:', error);
+            }
+        }
+
+        // 设置选中的服务器
+        async function setSelectedServer() {
+            const serverId = document.getElementById('genServer').value;
+            
+            if (serverId) {
+                try {
+                    const response = await fetch(`/api/servers/${serverId}`);
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        selectedServer = result;
+                    }
+                } catch (error) {
+                    console.error('获取服务器信息失败:', error);
+                }
+            } else {
+                selectedServer = null;
+            }
+        }
+
+        // 设置选中的模板
+        async function setSelectedTemplate() {
+            const templateId = document.getElementById('genTemplate').value;
+            
+            if (templateId) {
+                try {
+                    const response = await fetch(`/api/templates/${templateId}`);
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        selectedTemplate = result;
+                        loadConfigItems();
+                    } else {
+                        console.error('获取模板信息失败:', result);
+                    }
+                } catch (error) {
+                    console.error('获取模板信息失败:', error);
+                }
+            } else {
+                selectedTemplate = null;
+            }
+        }
+
+        function loadConfigItems() {
+            try {
+                if (selectedTemplate && selectedTemplate.config_items) {
+                    generateConfigForm(selectedTemplate.config_items);
+                }
+            } catch (error) {
+                console.error('loadConfigItems 发生错误:', error);
+            }
+        }
+
+        function generateConfigForm(configItems) {
+            try {
+                const configForm = document.getElementById('configForm');
+                const configItemsContainer = document.getElementById('configItems');
+                
+                if (!configForm || !configItemsContainer) {
+                    console.error('找不到配置表单元素');
+                    return;
+                }
+                
+                configItemsContainer.innerHTML = '';
+                
+                configItems.forEach((item, index) => {
+                    const configItem = document.createElement('div');
+                    configItem.className = 'config-item';
+                    
+                    configItem.innerHTML = `
+                        <label>${item.label}</label>
+                        <input type="text" value="${item.default_value}" data-key="${item.key}" placeholder="请输入${item.label}">
+                    `;
+                    configItemsContainer.appendChild(configItem);
+                });
+                
+                configForm.style.display = 'block';
+            } catch (error) {
+                console.error('generateConfigForm 发生错误:', error);
+            }
+        }
+        // 系统设置相关函数
+        async function loadSettingsData() {
+            // 加载当前用户信息
+            if (currentUser) {
+                const nicknameEl = document.getElementById('settingsNickname');
+                const emailEl = document.getElementById('settingsEmail');
+                
+                if (nicknameEl) {
+                    nicknameEl.value = currentUser.username || '';
+                }
+                if (emailEl) {
+                    emailEl.value = currentUser.email || '';
+                }
+            }
+            
+            // 加载系统信息统计
+            const templateCountEl = document.getElementById('templateCount');
+            const projectCountEl = document.getElementById('projectCount');
+            
+            if (templateCountEl) {
+                templateCountEl.textContent = templates.length;
+            }
+            if (projectCountEl) {
+                projectCountEl.textContent = projects.length;
+            }
+            
+            // 加载系统名称
+            const systemName = localStorage.getItem('systemName') || '游戏配置文件管理系统';
+            const systemSubtitle = localStorage.getItem('systemSubtitle') || '高效管理配置文件';
+            
+            const systemNameEl = document.getElementById('systemName');
+            const systemSubtitleEl = document.getElementById('systemSubtitle');
+            
+            if (systemNameEl) {
+                systemNameEl.value = systemName;
+            }
+            if (systemSubtitleEl) {
+                systemSubtitleEl.value = systemSubtitle;
+            }
+            
+            // 添加表单事件监听
+            const profileForm = document.getElementById('profileForm');
+            if (profileForm && !profileForm.dataset.listenerAdded) {
+                profileForm.addEventListener('submit', handleProfileUpdate);
+                profileForm.dataset.listenerAdded = 'true';
+            }
+            
+            const passwordForm = document.getElementById('passwordForm');
+            if (passwordForm && !passwordForm.dataset.listenerAdded) {
+                passwordForm.addEventListener('submit', handlePasswordChange);
+                passwordForm.dataset.listenerAdded = 'true';
+            }
+            
+            const systemNameForm = document.getElementById('systemNameForm');
+            if (systemNameForm && !systemNameForm.dataset.listenerAdded) {
+                systemNameForm.addEventListener('submit', handleSystemNameUpdate);
+                systemNameForm.dataset.listenerAdded = 'true';
+            }
+        }
+        
+        // 处理个人信息更新
+        async function handleProfileUpdate(e) {
+            e.preventDefault();
+            const nickname = document.getElementById('settingsNickname').value;
+            const email = document.getElementById('settingsEmail').value;
+            
+            showLoading('正在更新个人信息...');
+            
+            try {
+                const response = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nickname, email })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('个人信息更新成功！', 'success');
+                    currentUser.username = nickname;
+                    document.querySelector('.user-info span').textContent = nickname;
+                } else {
+                    showAlert(result.error || '个人信息更新失败', 'error');
+                }
+            } catch (error) {
+                console.error('更新个人信息失败:', error);
+                showAlert('个人信息更新失败，请重试', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 处理密码修改
+        async function handlePasswordChange(e) {
+            e.preventDefault();
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showAlert('两次输入的新密码不一致！', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showAlert('新密码长度至少6位！', 'error');
+                return;
+            }
+            
+            showLoading('正在修改密码...');
+            
+            try {
+                const response = await fetch('/api/user/password', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('密码修改成功！请重新登录', 'success');
+                    document.getElementById('passwordForm').reset();
+                    setTimeout(() => logout(), 2000);
+                } else {
+                    showAlert(result.error || '密码修改失败', 'error');
+                }
+            } catch (error) {
+                console.error('修改密码失败:', error);
+                showAlert('密码修改失败，请重试', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 处理系统名称更新
+        function handleSystemNameUpdate(e) {
+            e.preventDefault();
+            console.log('系统设置表单提交被触发');
+            
+            const systemName = document.getElementById('systemName').value;
+            const systemSubtitle = document.getElementById('systemSubtitle').value;
+            
+            console.log('系统名称:', systemName);
+            console.log('系统副标题:', systemSubtitle);
+            
+            localStorage.setItem('systemName', systemName);
+            localStorage.setItem('systemSubtitle', systemSubtitle);
+            
+            // 更新页面上的系统名称
+            const sidebarHeader = document.querySelector('.sidebar-header h2');
+            const sidebarSubtitle = document.querySelector('.sidebar-header p');
+            if (sidebarHeader) {
+                sidebarHeader.textContent = systemName;
+            }
+            if (sidebarSubtitle) {
+                sidebarSubtitle.textContent = systemSubtitle;
+            }
+            
+            // 更新页面标题
+            document.title = systemName;
+            
+            // 更新页面头部标题
+            const pageTitle = document.querySelector('.content-header h1');
+            if (pageTitle) {
+                pageTitle.textContent = systemName;
+            }
+            
+            showAlert('系统名称更新成功！', 'success');
+        }
+        
+        // 处理导航名称更新
+        function handleNavUpdate(e) {
+            e.preventDefault();
+            const nav1 = document.getElementById('nav1Name').value;
+            const nav2 = document.getElementById('nav2Name').value;
+            const nav3 = document.getElementById('nav3Name').value;
+            const nav4 = document.getElementById('nav4Name').value;
+            const nav5 = document.getElementById('nav5Name').value;
+            
+            // 保存到localStorage
+            localStorage.setItem('nav1Name', nav1);
+            localStorage.setItem('nav2Name', nav2);
+            localStorage.setItem('nav3Name', nav3);
+            localStorage.setItem('nav4Name', nav4);
+            localStorage.setItem('nav5Name', nav5);
+            
+            // 更新侧边栏导航名称
+            const navLinks = document.querySelectorAll('.sidebar-nav span');
+            if (navLinks[0]) navLinks[0].textContent = nav1;
+            if (navLinks[1]) navLinks[1].textContent = nav2;
+            if (navLinks[2]) navLinks[2].textContent = nav3;
+            if (navLinks[3]) navLinks[3].textContent = nav4;
+            if (navLinks[4]) navLinks[4].textContent = nav5;
+            
+            showAlert('导航名称更新成功！', 'success');
+        }
+        
+        // 处理路径更新
+        function handlePathUpdate(e) {
+            e.preventDefault();
+            const templatePath = document.getElementById('templatePath').value;
+            const outputPath = document.getElementById('outputPath').value;
+            
+            localStorage.setItem('templatePath', templatePath);
+            localStorage.setItem('outputPath', outputPath);
+            
+            showAlert('路径设置更新成功！', 'success');
+        }
+        
+        // 数据备份
+        async function backupData() {
+            showLoading('正在生成备份...');
+            
+            try {
+                const backupData = {
+                    projects: projects,
+                    games: games,
+                    servers: servers,
+                    templates: templates,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `config-backup-${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showAlert('数据备份成功！', 'success');
+            } catch (error) {
+                console.error('备份数据失败:', error);
+                showAlert('数据备份失败，请重试', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 导入数据
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (confirm('导入数据将覆盖当前数据，是否继续？')) {
+                        projects = data.projects || [];
+                        games = data.games || [];
+                        servers = data.servers || [];
+                        templates = data.templates || [];
+                        
+                        showAlert('数据导入成功！', 'success');
+                        location.reload();
+                    }
+                } catch (error) {
+                    console.error('导入数据失败:', error);
+                    showAlert('数据导入失败，文件格式错误', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // 确认清空数据
+        function confirmClearData() {
+            if (confirm('此操作将清空所有数据且不可恢复，是否继续？')) {
+                if (confirm('请再次确认，是否清空所有数据？')) {
+                    clearAllData();
+                }
+            }
+        }
+        
+        // 清空所有数据
+        async function clearAllData() {
+            showLoading('正在清空数据...');
+            
+            try {
+                // 这里应该调用后端API清空数据
+                // 暂时只清空前端数据
+                projects = [];
+                games = [];
+                servers = [];
+                templates = [];
+                
+                showAlert('所有数据已清空！', 'success');
+                location.reload();
+            } catch (error) {
+                console.error('清空数据失败:', error);
+                showAlert('清空数据失败，请重试', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+    </script>
+</body>
+</html>
