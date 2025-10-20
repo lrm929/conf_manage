@@ -161,6 +161,8 @@ def login():
     username = data.get('username')
     password = data.get('password')
     
+    print(f"DEBUG: 登录请求 - 用户名: {username}")
+    
     if not username or not password:
         return jsonify({'error': '用户名和密码不能为空'}), 400
     
@@ -168,28 +170,37 @@ def login():
     cursor = conn.cursor()
     
     password_hash = hashlib.sha256(password.encode()).hexdigest()
+    print(f"DEBUG: 输入密码哈希: {password_hash}")
+    
     cursor.execute('''
-        SELECT id, username, role FROM users 
-        WHERE username = ? AND password_hash = ?
-    ''', (username, password_hash))
+        SELECT id, username, role, password_hash FROM users 
+        WHERE username = ?
+    ''', (username,))
     
     user = cursor.fetchone()
-    conn.close()
+    print(f"DEBUG: 查询到的用户: {user}")
     
     if user:
-        session['user_id'] = user[0]
-        session['username'] = user[1]
-        session['role'] = user[2]
-        return jsonify({
-            'message': '登录成功',
-            'user': {
-                'id': user[0],
-                'username': user[1],
-                'role': user[2]
-            }
-        })
-    else:
-        return jsonify({'error': '用户名或密码错误'}), 401
+        stored_hash = user[3]  # password_hash 是第4个字段
+        print(f"DEBUG: 存储的密码哈希: {stored_hash}")
+        print(f"DEBUG: 密码匹配: {stored_hash == password_hash}")
+        
+        if stored_hash == password_hash:
+            session['user_id'] = user[0]
+            session['username'] = user[1]
+            session['role'] = user[2]
+            conn.close()
+            return jsonify({
+                'message': '登录成功',
+                'user': {
+                    'id': user[0],
+                    'username': user[1],
+                    'role': user[2]
+                }
+            })
+    
+    conn.close()
+    return jsonify({'error': '用户名或密码错误'}), 401
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -1173,6 +1184,36 @@ def download_generated_zip():
     except Exception as e:
         return jsonify({'error': f'创建ZIP包失败: {str(e)}'}), 500
 
+# 修改用户个人信息
+@app.route('/api/user/profile', methods=['PUT'])
+@login_required
+def update_profile():
+    """修改用户个人信息"""
+    data = request.get_json()
+    nickname = data.get('nickname')
+    email = data.get('email')
+    
+    if not nickname:
+        return jsonify({'error': '昵称不能为空'}), 400
+    
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    
+    try:
+        # 更新用户信息
+        cursor.execute('UPDATE users SET username = ?, email = ? WHERE id = ?', 
+                      (nickname, email, session['user_id']))
+        conn.commit()
+        conn.close()
+        
+        # 更新session中的用户名
+        session['username'] = nickname
+        
+        return jsonify({'message': '个人信息更新成功'})
+    except Exception as e:
+        conn.close()
+        return jsonify({'error': f'更新失败: {str(e)}'}), 500
+
 # 修改用户密码
 @app.route('/api/user/password', methods=['PUT'])
 @login_required
@@ -1196,7 +1237,7 @@ def change_password():
     cursor = conn.cursor()
     
     # 验证当前密码
-    cursor.execute('SELECT password FROM users WHERE id = ?', (session['user_id'],))
+    cursor.execute('SELECT password_hash FROM users WHERE id = ?', (session['user_id'],))
     user = cursor.fetchone()
     print(f"DEBUG: 查询到的用户: {user}")
     
@@ -1205,19 +1246,54 @@ def change_password():
         conn.close()
         return jsonify({'error': '用户不存在'}), 404
     
-    # 验证当前密码（简单比较，实际应用中应该使用哈希）
-    if user[0] != current_password:
+    # 验证当前密码（使用哈希比较）
+    import hashlib
+    current_password_hash = hashlib.sha256(current_password.encode()).hexdigest()
+    if user[0] != current_password_hash:
         print(f"DEBUG: 当前密码错误")
+        print(f"DEBUG: 数据库密码: {user[0]}")
+        print(f"DEBUG: 输入密码哈希: {current_password_hash}")
         conn.close()
         return jsonify({'error': '当前密码错误'}), 400
     
-    # 更新密码
-    cursor.execute('UPDATE users SET password = ? WHERE id = ?', (new_password, session['user_id']))
+    # 更新密码（使用哈希）
+    new_password_hash = hashlib.sha256(new_password.encode()).hexdigest()
+    cursor.execute('UPDATE users SET password_hash = ? WHERE id = ?', (new_password_hash, session['user_id']))
     conn.commit()
     conn.close()
     
     print(f"DEBUG: 密码修改成功")
     return jsonify({'message': '密码修改成功'})
+
+# 清空所有数据
+@app.route('/api/clear-data', methods=['POST'])
+@login_required
+def clear_all_data():
+    """清空所有数据"""
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    
+    try:
+        # 清空所有表（除了users表，保留当前用户）
+        current_user_id = session['user_id']
+        
+        # 删除所有数据
+        cursor.execute('DELETE FROM config_files')
+        cursor.execute('DELETE FROM config_templates')
+        cursor.execute('DELETE FROM servers')
+        cursor.execute('DELETE FROM games')
+        cursor.execute('DELETE FROM projects WHERE id != ?', (current_user_id,))
+        
+        # 重置自增ID
+        cursor.execute('DELETE FROM sqlite_sequence WHERE name IN ("projects", "games", "servers", "config_templates", "config_files")')
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'message': '数据清空成功'})
+    except Exception as e:
+        conn.close()
+        return jsonify({'error': f'清空数据失败: {str(e)}'}), 500
 
 # 调试API - 查看数据库状态
 @app.route('/api/debug/status', methods=['GET'])

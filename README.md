@@ -61,6 +61,33 @@
 3. **访问系统**
    打开浏览器访问: `http://localhost:5000`
 
+### Docker部署
+
+1. **使用Docker Compose**
+   ```bash
+   # 构建并启动
+   docker-compose up -d
+   
+   # 查看日志
+   docker-compose logs -f
+   
+   # 停止服务
+   docker-compose down
+   ```
+
+2. **使用Docker**
+   ```bash
+   # 构建镜像
+   docker build -t config-generator .
+   
+   # 运行容器
+   docker run -d -p 5000:5000 \
+     -v $(pwd)/uploads:/app/uploads \
+     -v $(pwd)/downloads:/app/downloads \
+     -v $(pwd)/templates:/app/templates \
+     --name config-generator-system \
+     config-generator
+   ```
 
 ### 服务管理
 
@@ -257,4 +284,8 @@ MIT License
 
 欢迎提交Issue和Pull Request来改进这个项目。
 
+## 联系方式
 
+如有问题或建议，请通过以下方式联系：
+- 邮箱: admin@example.com
+- GitHub: [项目地址]

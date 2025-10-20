@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <appSettings>
+    <add key="Ip" value="0.0.0.0" />
+    <add key="Port" value="12345" />
+</configuration>
