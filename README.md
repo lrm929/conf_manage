@@ -262,4 +262,5 @@ MIT License
 
 欢迎提交Issue和Pull Request来改进这个项目。
 
+<img width="1879" height="724" alt="image" src="https://github.com/user-attachments/assets/be90d16f-8876-453e-9990-866939dee678" />
 
